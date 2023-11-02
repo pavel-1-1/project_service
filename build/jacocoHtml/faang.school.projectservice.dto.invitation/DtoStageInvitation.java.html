@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DtoStageInvitation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ProjectService</a> &gt; <a href="index.source.html" class="el_package">faang.school.projectservice.dto.invitation</a> &gt; <span class="el_source">DtoStageInvitation.java</span></div><h1>DtoStageInvitation.java</h1><pre class="source lang-java linenums">package faang.school.projectservice.dto.invitation;
+
+import faang.school.projectservice.model.stage_invitation.StageInvitationStatus;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+<span class="pc bpc" id="L11" title="33 of 46 branches missed.">@Data</span>
+public class DtoStageInvitation {
+    @NotBlank(message = &quot;stage name can't be empty&quot;)
+    @Size(min = 1, max = 1000, message = &quot;stage name the value cannot be empty or more than 1000 characters&quot;)
+<span class="fc" id="L15">    private String description;</span>
+<span class="fc" id="L16">    private StageInvitationStatus status;</span>
+    @Positive(message = &quot;user id must be greater than 0&quot;)
+    @Max(value = Long.MAX_VALUE, message = &quot;user id the value cannot be empty or greater than 9223372036854775807&quot;)
+<span class="fc" id="L19">    private Long idAuthor;</span>
+    @Positive(message = &quot;user id must be greater than 0&quot;)
+    @Max(value = Long.MAX_VALUE, message = &quot;user id the value cannot be empty or greater than 9223372036854775807&quot;)
+<span class="fc" id="L22">    private Long idInvited;</span>
+    @Valid
+<span class="fc" id="L24">    private DtoStage stage;</span>
+
+<span class="fc" id="L26">    public DtoStageInvitation(String description, long userIdAuthor, long userIdInvited, DtoStage stage) {</span>
+<span class="fc" id="L27">        this.description = description;</span>
+<span class="fc" id="L28">        this.status = StageInvitationStatus.PENDING;</span>
+<span class="fc" id="L29">        this.idAuthor = userIdAuthor;</span>
+<span class="fc" id="L30">        this.idInvited = userIdInvited;</span>
+<span class="fc" id="L31">        this.stage = stage;</span>
+<span class="fc" id="L32">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

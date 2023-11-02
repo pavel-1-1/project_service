@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResponseInternshipDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ProjectService</a> &gt; <a href="index.source.html" class="el_package">faang.school.projectservice.dto.internship</a> &gt; <span class="el_source">ResponseInternshipDto.java</span></div><h1>ResponseInternshipDto.java</h1><pre class="source lang-java linenums">package faang.school.projectservice.dto.internship;
+
+import faang.school.projectservice.model.InternshipStatus;
+import faang.school.projectservice.model.Project;
+import faang.school.projectservice.model.TeamRole;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+<span class="nc bnc" id="L13" title="All 118 branches missed.">@Data</span>
+<span class="nc" id="L14">@AllArgsConstructor</span>
+<span class="nc" id="L15">@Builder</span>
+public class ResponseInternshipDto {
+<span class="nc" id="L17">    private Long id;</span>
+<span class="nc" id="L18">    private Long projectId;</span>
+<span class="nc" id="L19">    private Long mentorId;</span>
+<span class="nc" id="L20">    private List&lt;Long&gt; internIds;</span>
+<span class="nc" id="L21">    private LocalDateTime startDate;</span>
+<span class="nc" id="L22">    private LocalDateTime endDate;</span>
+<span class="nc" id="L23">    private InternshipStatus status;</span>
+<span class="nc" id="L24">    private String description;</span>
+<span class="nc" id="L25">    private String name;</span>
+<span class="nc" id="L26">    private LocalDateTime createdAt;</span>
+<span class="nc" id="L27">    private LocalDateTime updatedAt;</span>
+<span class="nc" id="L28">    private Long createdBy;</span>
+<span class="nc" id="L29">    private Long updatedBy;</span>
+<span class="nc" id="L30">    private Long scheduleId;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

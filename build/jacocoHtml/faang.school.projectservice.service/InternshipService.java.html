@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InternshipService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ProjectService</a> &gt; <a href="index.source.html" class="el_package">faang.school.projectservice.service</a> &gt; <span class="el_source">InternshipService.java</span></div><h1>InternshipService.java</h1><pre class="source lang-java linenums">package faang.school.projectservice.service;
+
+import faang.school.projectservice.dto.internship.CreateInternshipDto;
+import faang.school.projectservice.dto.internship.InternshipFilterDto;
+import faang.school.projectservice.dto.internship.ResponseInternshipDto;
+import faang.school.projectservice.dto.internship.UpdateInternshipDto;
+import faang.school.projectservice.filter.internship.InternshipFilter;
+import faang.school.projectservice.jpa.ProjectJpaRepository;
+import faang.school.projectservice.jpa.TaskRepository;
+import faang.school.projectservice.jpa.TeamMemberJpaRepository;
+import faang.school.projectservice.mapper.internship.InternshipMapper;
+import faang.school.projectservice.model.Internship;
+import faang.school.projectservice.model.InternshipStatus;
+import faang.school.projectservice.model.Project;
+import faang.school.projectservice.model.Task;
+import faang.school.projectservice.model.TaskStatus;
+import faang.school.projectservice.model.TeamMember;
+import faang.school.projectservice.model.TeamRole;
+import faang.school.projectservice.repository.InternshipRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+@Service
+<span class="nc" id="L31">@RequiredArgsConstructor</span>
+public class InternshipService {
+    private final InternshipRepository internshipRepository;
+    private final ProjectJpaRepository projectRepository;
+    private final TeamMemberJpaRepository teamMemberRepository;
+    private final TaskRepository taskRepository;
+    private final InternshipMapper internshipMapper;
+    private final List&lt;InternshipFilter&gt; internshipFilters;
+
+    @Transactional
+    public ResponseInternshipDto create(CreateInternshipDto dto) {
+<span class="nc" id="L42">        Project project = projectRepository.findById(dto.getProjectId())</span>
+<span class="nc" id="L43">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Project is not found&quot;));</span>
+<span class="nc" id="L44">        TeamMember mentor = teamMemberRepository.findByIdAndProjectId(dto.getMentorId(), dto.getProjectId());</span>
+<span class="nc" id="L45">        List&lt;TeamMember&gt; interns = teamMemberRepository.findAllById(dto.getInternIds());</span>
+<span class="nc" id="L46">        interns.forEach(intern -&gt; addRole(dto.getInternshipRole(), intern));</span>
+
+<span class="nc" id="L48">        validateCreateDto(dto, mentor);</span>
+
+<span class="nc" id="L50">        Internship internship = internshipMapper.createDtoToEntity(dto);</span>
+<span class="nc" id="L51">        internship.setProject(project);</span>
+<span class="nc" id="L52">        internship.setMentor(mentor);</span>
+<span class="nc" id="L53">        internship.setInterns(interns);</span>
+<span class="nc" id="L54">        internship.setCreatedAt(LocalDateTime.now());</span>
+
+<span class="nc" id="L56">        return internshipMapper.entityToResponseDto(internshipRepository.save(internship));</span>
+    }
+
+    @Transactional
+    public ResponseInternshipDto update(UpdateInternshipDto dto) {
+<span class="nc" id="L61">        Internship internship = internshipRepository.findById(dto.getId())</span>
+<span class="nc" id="L62">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;The internship not found&quot;));</span>
+<span class="nc" id="L63">        Project project = internship.getProject();</span>
+
+<span class="nc" id="L65">        finishInternship(dto, internship, project);</span>
+<span class="nc" id="L66">        internship.setStatus(dto.getStatus());</span>
+<span class="nc" id="L67">        internship.setUpdatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L68">        internship.setName(dto.getName());</span>
+<span class="nc" id="L69">        internship.setUpdatedBy(dto.getUpdatedBy());</span>
+
+<span class="nc" id="L71">        return internshipMapper.entityToResponseDto(internship);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;ResponseInternshipDto&gt; findByFilter(InternshipFilterDto internshipFilterDto) {
+<span class="nc" id="L76">        Stream&lt;Internship&gt; internships =</span>
+<span class="nc" id="L77">                internshipRepository.findAllByProjectId(internshipFilterDto.getProjectId()).stream();</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (InternshipFilter filter : internshipFilters) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (filter.isApplicable(internshipFilterDto)) {</span>
+<span class="nc" id="L81">                internships = filter.apply(internships, internshipFilterDto);</span>
+            }
+<span class="nc" id="L83">        }</span>
+
+<span class="nc" id="L85">        return internshipMapper.entityListToDtoList(internships.toList());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;ResponseInternshipDto&gt; findAll() {
+<span class="nc" id="L90">        return internshipMapper.entityListToDtoList(internshipRepository.findAll());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseInternshipDto findById(Long id) {
+<span class="nc" id="L95">        return internshipMapper.entityToResponseDto(</span>
+<span class="nc" id="L96">                internshipRepository.findById(id)</span>
+<span class="nc" id="L97">                        .orElseThrow(() -&gt; new IllegalArgumentException(&quot;The internship with id &quot; + id + &quot; is not found&quot;)));</span>
+    }
+
+    private void addRole(TeamRole teamRole, TeamMember intern) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (intern.getRoles() == null) {</span>
+<span class="nc" id="L102">            intern.setRoles(new ArrayList&lt;&gt;());</span>
+        }
+<span class="nc" id="L104">        intern.getRoles().add(teamRole);</span>
+<span class="nc" id="L105">    }</span>
+
+    private void giveProjectRole(TeamMember intern) {
+<span class="nc" id="L108">        List&lt;TeamRole&gt; roles = intern.getRoles();</span>
+<span class="nc" id="L109">        TeamRole role = roles.stream().filter(r -&gt;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                        r.equals(TeamRole.INTERN_ANALYST) ||</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                                r.equals(TeamRole.INTERN_DESIGNER) ||</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                                r.equals(TeamRole.INTERN_DEVELOPER) ||</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                                r.equals(TeamRole.INTERN_MANAGER) ||</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                                r.equals(TeamRole.INTERN_TESTER)</span>
+                )
+<span class="nc" id="L116">                .findFirst()</span>
+<span class="nc" id="L117">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Team member with id &quot; + intern.getId() + &quot; doesn't has intern role&quot;));</span>
+
+<span class="nc bnc" id="L119" title="All 6 branches missed.">        switch (role) {</span>
+            case INTERN_ANALYST -&gt; {
+<span class="nc" id="L121">                roles.remove(TeamRole.INTERN_ANALYST);</span>
+<span class="nc" id="L122">                roles.add(TeamRole.ANALYST);</span>
+<span class="nc" id="L123">            }</span>
+            case INTERN_DESIGNER -&gt; {
+<span class="nc" id="L125">                roles.remove(TeamRole.INTERN_DESIGNER);</span>
+<span class="nc" id="L126">                roles.add(TeamRole.DESIGNER);</span>
+<span class="nc" id="L127">            }</span>
+            case INTERN_DEVELOPER -&gt; {
+<span class="nc" id="L129">                roles.remove(TeamRole.INTERN_DEVELOPER);</span>
+<span class="nc" id="L130">                roles.add(TeamRole.DEVELOPER);</span>
+<span class="nc" id="L131">            }</span>
+            case INTERN_MANAGER -&gt; {
+<span class="nc" id="L133">                roles.remove(TeamRole.INTERN_MANAGER);</span>
+<span class="nc" id="L134">                roles.add(TeamRole.MANAGER);</span>
+<span class="nc" id="L135">            }</span>
+            case INTERN_TESTER -&gt; {
+<span class="nc" id="L137">                roles.remove(TeamRole.INTERN_TESTER);</span>
+<span class="nc" id="L138">                roles.add(TeamRole.TESTER);</span>
+            }
+        }
+<span class="nc" id="L141">        intern.setRoles(roles);</span>
+<span class="nc" id="L142">    }</span>
+
+    private void finishInternship(UpdateInternshipDto dto, Internship internship, Project project) {
+<span class="nc bnc" id="L145" title="All 4 branches missed.">        if (dto.getStatus().equals(InternshipStatus.COMPLETED) &amp;&amp; internship.getStatus().equals(InternshipStatus.IN_PROGRESS)) {</span>
+<span class="nc" id="L146">            List&lt;TeamMember&gt; interns = internship.getInterns();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            for (TeamMember intern : interns) {</span>
+<span class="nc" id="L148">                List&lt;TaskStatus&gt; taskOfIntern =</span>
+<span class="nc" id="L149">                        taskRepository.findAllByProjectIdAndPerformerUserId(internship.getProject().getId(), intern.getId())</span>
+<span class="nc" id="L150">                                .stream()</span>
+<span class="nc" id="L151">                                .map(Task::getStatus)</span>
+<span class="nc" id="L152">                                .toList();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                if (taskOfIntern.stream().allMatch(task -&gt; task.equals(TaskStatus.DONE))) {</span>
+<span class="nc" id="L154">                    giveProjectRole(intern);</span>
+                } else {
+<span class="nc" id="L156">                    project.getTeams().forEach(team -&gt; team.getTeamMembers().remove(intern));</span>
+                }
+<span class="nc" id="L158">            }</span>
+        }
+<span class="nc" id="L160">    }</span>
+
+    private void validateCreateDto(CreateInternshipDto dto, TeamMember mentor) {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (Period.between(dto.getStartDate().toLocalDate(), dto.getEndDate().toLocalDate()).getMonths() &gt; 3) {</span>
+<span class="nc" id="L164">            throw new IllegalArgumentException(&quot;The duration of the internship should not exceed 3 months&quot;);</span>
+        }
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (mentor == null) {</span>
+<span class="nc" id="L167">            throw new IllegalArgumentException(&quot;The internship should contain mentor from project&quot;);</span>
+        }
+<span class="nc" id="L169">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

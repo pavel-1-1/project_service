@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="faang.school.projectservice.service.StageInvitationServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-08-17T15:03:45" hostname="DESKTOP-T5134UM" time="1.117">
+  <properties/>
+  <testcase name="acceptDeclineInvitation()" classname="faang.school.projectservice.service.StageInvitationServiceTest" time="1.092"/>
+  <testcase name="invitationHasBeenSent()" classname="faang.school.projectservice.service.StageInvitationServiceTest" time="0.009"/>
+  <testcase name="getAllStageInvitation()" classname="faang.school.projectservice.service.StageInvitationServiceTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

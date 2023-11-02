@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StageInvitationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ProjectService</a> &gt; <a href="index.source.html" class="el_package">faang.school.projectservice.service</a> &gt; <span class="el_source">StageInvitationService.java</span></div><h1>StageInvitationService.java</h1><pre class="source lang-java linenums">package faang.school.projectservice.service;
+
+import faang.school.projectservice.dto.invitation.DtoStage;
+import faang.school.projectservice.dto.invitation.DtoStageInvitation;
+import faang.school.projectservice.dto.invitation.DtoStageInvitationFilter;
+import faang.school.projectservice.exception.ValidException;
+import faang.school.projectservice.filter.stageInvitation.StageInvitationFilter;
+import faang.school.projectservice.mapper.invitationMaper.StageInvitationMapper;
+import faang.school.projectservice.mapper.invitationMaper.StageMapper;
+import faang.school.projectservice.mapper.invitationMaper.TeamMemberMapper;
+import faang.school.projectservice.model.TeamMember;
+import faang.school.projectservice.model.stage_invitation.StageInvitation;
+import faang.school.projectservice.model.stage_invitation.StageInvitationStatus;
+import faang.school.projectservice.repository.StageInvitationRepository;
+import faang.school.projectservice.repository.StageRepository;
+import faang.school.projectservice.repository.TeamMemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+
+@Service
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
+public class StageInvitationService {
+
+<span class="fc" id="L28">    private final StageInvitationMapper stageInvitationMapper = StageInvitationMapper.INSTANCE;</span>
+<span class="fc" id="L29">    private final TeamMemberMapper memberMapper = TeamMemberMapper.INSTANCE;</span>
+<span class="fc" id="L30">    private final StageMapper stageMapper = StageMapper.INSTANCE;</span>
+
+    private final StageInvitationRepository invitationRepository;
+
+    private final StageRepository stageRepository;
+
+    private final TeamMemberRepository memberRepository;
+
+    private final List&lt;StageInvitationFilter&gt; invitationFilter;
+
+    public DtoStageInvitation invitationHasBeenSent(DtoStageInvitation dto) {
+<span class="fc" id="L41">        dataVerificationStageInvitation(dto);</span>
+<span class="fc" id="L42">        return stageInvitationMapper.toDto(invitationRepository.save(stageInvitationMapper.toStageInvitation(dto)));</span>
+    }
+
+    @Transactional
+    public StageInvitationStatus acceptDeclineInvitation(String status, long idInvitation) {
+<span class="fc" id="L47">        StageInvitation invitation = invitationRepository.findById(idInvitation);</span>
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (status.equals(&quot;ACCEPTED&quot;)) {</span>
+<span class="fc" id="L50">            invitation.setStatus(StageInvitationStatus.ACCEPTED);</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        } else if (status.equals(&quot;REJECTED&quot;)) {</span>
+<span class="fc" id="L52">            invitation.setStatus(StageInvitationStatus.REJECTED);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        } else if (status.equals(&quot;PENDING&quot;)) {</span>
+<span class="nc" id="L54">            invitation.setStatus(StageInvitationStatus.PENDING);</span>
+        }
+
+<span class="fc" id="L57">        return invitation.getStatus();</span>
+    }
+
+    public List&lt;DtoStageInvitation&gt; getAllStageInvitation(long userId, DtoStageInvitationFilter filters) {
+<span class="fc" id="L61">        List&lt;StageInvitation&gt; stageInvitations = invitationRepository.findAll().stream()</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">                .filter(invitation -&gt; invitation.getInvited().getId() == userId).toList();</span>
+
+<span class="fc" id="L64">        return invitationFilter.stream().filter(filter -&gt; filter.isApplication(filters))</span>
+<span class="fc" id="L65">                .flatMap(filter -&gt; filter.apply(stageInvitations.stream(), filters))</span>
+<span class="fc" id="L66">                .map(stageInvitationMapper::toDto).toList();</span>
+    }
+
+    private void dataVerificationStageInvitation(DtoStageInvitation dto) {
+<span class="fc" id="L70">        long authorTeamMemberId = dto.getIdAuthor();</span>
+<span class="fc" id="L71">        long invitedTeamMemberId = dto.getIdInvited();</span>
+<span class="fc" id="L72">        DtoStage dtoStage = dto.getStage();</span>
+<span class="fc" id="L73">        TeamMember teamMemberAuthor = memberRepository.findById(authorTeamMemberId);</span>
+<span class="fc" id="L74">        memberRepository.findById(invitedTeamMemberId);</span>
+<span class="fc" id="L75">        stageRepository.getById(dto.getStage().getStageId());</span>
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (!teamMemberAuthor.getStages().stream().map(stageMapper::toDtoStage).toList().contains(dtoStage)) {</span>
+<span class="nc" id="L78">            throw new ValidException(&quot;the author is not a performer&quot;);</span>
+        }
+
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (invitationRepository.existsByAuthorAndInvitedAndStage(memberMapper.toTeamMember(dto.getIdAuthor()),</span>
+<span class="fc" id="L82">                memberMapper.toTeamMember(dto.getIdInvited()),</span>
+<span class="fc" id="L83">                stageMapper.toStage(dto.getStage()))) {</span>
+<span class="nc" id="L84">            throw new ValidException(&quot;the invitation has already been sent!&quot;);</span>
+        }
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (Objects.equals(dto.getIdAuthor(), dto.getIdInvited())) {</span>
+<span class="nc" id="L88">            throw new ValidException(&quot;repeated id&quot;);</span>
+        }
+<span class="fc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

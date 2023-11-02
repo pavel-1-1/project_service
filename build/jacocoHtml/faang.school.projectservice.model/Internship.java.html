@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Internship.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ProjectService</a> &gt; <a href="index.source.html" class="el_package">faang.school.projectservice.model</a> &gt; <span class="el_source">Internship.java</span></div><h1>Internship.java</h1><pre class="source lang-java linenums">package faang.school.projectservice.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+
+<span class="nc bnc" id="L33" title="All 118 branches missed.">@Data</span>
+<span class="nc" id="L34">@Builder</span>
+<span class="nc" id="L35">@AllArgsConstructor</span>
+<span class="nc" id="L36">@NoArgsConstructor</span>
+@Entity
+@Table(name = &quot;internship&quot;)
+public class Internship {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L43">    private Long id;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;project_id&quot;)
+<span class="nc" id="L47">    private Project project;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;team_member_id&quot;)
+    @NotNull
+<span class="nc" id="L52">    private TeamMember mentor;</span>
+
+    @ManyToMany
+    @JoinTable(
+            name = &quot;internship_interns&quot;,
+            joinColumns = @JoinColumn(name = &quot;internship_id&quot;),
+            inverseJoinColumns = @JoinColumn(name = &quot;team_member_id&quot;)
+    )
+<span class="nc" id="L60">    private List&lt;TeamMember&gt; interns;</span>
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @NotNull
+<span class="nc" id="L64">    private LocalDateTime startDate;</span>
+
+    @Temporal(TemporalType.TIMESTAMP)
+<span class="nc" id="L67">    private LocalDateTime endDate;</span>
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+<span class="nc" id="L71">    private InternshipStatus status;</span>
+
+    @NotBlank
+<span class="nc" id="L74">    private String description;</span>
+
+    @NotBlank
+<span class="nc" id="L77">    private String name;</span>
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+<span class="nc" id="L81">    private LocalDateTime createdAt;</span>
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L86">    private LocalDateTime updatedAt;</span>
+
+    @CreatedBy
+    @NotNull
+<span class="nc" id="L90">    private Long createdBy;</span>
+
+    @LastModifiedBy
+<span class="nc" id="L93">    private Long updatedBy;</span>
+
+    @OneToOne
+    @JoinColumn(name = &quot;schedule_id&quot;)
+<span class="nc" id="L97">    private Schedule schedule;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

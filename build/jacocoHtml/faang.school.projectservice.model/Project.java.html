@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Project.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ProjectService</a> &gt; <a href="index.source.html" class="el_package">faang.school.projectservice.model</a> &gt; <span class="el_source">Project.java</span></div><h1>Project.java</h1><pre class="source lang-java linenums">package faang.school.projectservice.model;
+
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import faang.school.projectservice.model.stage.Stage;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+@Entity
+@Table(name = &quot;project&quot;)
+<span class="nc bnc" id="L18" title="All 166 branches missed.">@Data</span>
+<span class="nc" id="L19">@AllArgsConstructor</span>
+<span class="nc" id="L20">@NoArgsConstructor</span>
+<span class="nc" id="L21">@Builder</span>
+public class Project {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L26">    private Long id;</span>
+
+    @Column(name = &quot;name&quot;, length = 128, nullable = false)
+<span class="nc" id="L29">    private String name;</span>
+
+    @Column(name = &quot;description&quot;, length = 4096)
+<span class="nc" id="L32">    private String description;</span>
+
+    @Column(name = &quot;storage_size&quot;)
+<span class="nc" id="L35">    private BigInteger storageSize;</span>
+
+    @Column(name = &quot;max_storage_size&quot;)
+<span class="nc" id="L38">    private BigInteger maxStorageSize;</span>
+
+    @Column(name = &quot;owner_id&quot;)
+<span class="nc" id="L41">    private Long ownerId;</span>
+
+    @ManyToOne(cascade={CascadeType.ALL})
+    @JoinColumn(name=&quot;parent_project_id&quot;)
+<span class="nc" id="L45">    private Project parentProject;</span>
+
+    @OneToMany(mappedBy = &quot;parentProject&quot;, fetch = FetchType.EAGER)
+<span class="nc" id="L48">    private List&lt;Project&gt; children;</span>
+
+    @OneToMany(mappedBy = &quot;project&quot;)
+<span class="nc" id="L51">    private List&lt;Task&gt; tasks;</span>
+
+    @OneToMany(mappedBy = &quot;project&quot;)
+<span class="nc" id="L54">    private List&lt;Resource&gt; resources;</span>
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+<span class="nc" id="L58">    private LocalDateTime createdAt;</span>
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L63">    private LocalDateTime updatedAt;</span>
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+<span class="nc" id="L67">    private ProjectStatus status;</span>
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+<span class="nc" id="L71">    private ProjectVisibility visibility;</span>
+
+    @Column(name = &quot;cover_image_id&quot;)
+<span class="nc" id="L74">    private String coverImageId;</span>
+
+    @OneToMany(mappedBy = &quot;project&quot;)
+<span class="nc" id="L77">    private List&lt;Team&gt; teams;</span>
+
+    @OneToOne(mappedBy = &quot;project&quot;)
+<span class="nc" id="L80">    private Schedule schedule;</span>
+
+    @OneToMany(mappedBy = &quot;project&quot;)
+<span class="nc" id="L83">    private List&lt;Stage&gt; stages;</span>
+
+    @OneToMany(mappedBy = &quot;project&quot;)
+<span class="nc" id="L86">    private List&lt;Vacancy&gt; vacancies;</span>
+
+    @ManyToMany(mappedBy = &quot;projects&quot;)
+<span class="nc" id="L89">    private List&lt;Moment&gt; moments;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
